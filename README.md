@@ -4,15 +4,23 @@ Interactive GemStone IV world map with connected areas, hunting level filters, l
 
 [Download the latest release](https://github.com/WIdowDark30/EpicMap/releases/latest)
 
-## Panel controls update (v1.2.2)
+## Download and install v1.2.2
 
-[Download the v1.2.2 update ZIP](downloads/epicmap-v1.2.2-update.zip?raw=true) (requires an existing v1.2.1 installation).
+[**Download EpicMap v1.2.2 — complete ZIP**](https://github.com/WIdowDark30/EpicMap/releases/download/v1.2.2/epicmap-v1.2.2.zip)
 
-Extract the update and copy its `EpicMap` folder over your existing `EpicMap` folder, replacing the four files. Keep your existing maps and data. Reload with Ctrl+F5.
+Includes all maps, data, the Lich companion script, and the latest UI improvements. New users need only this download.
+
+1. Extract the ZIP and place the `EpicMap` folder in your Lich folder.
+2. Copy `scripts/epicmap.lic` into your Lich scripts folder.
+3. Run `;epicmap` in game. Use `;epicmap noopen` for additional characters.
+
+Existing users can replace their `EpicMap` folder and reload with **Ctrl+F5**.
+
+### New panel controls
 
 - Hide the left controls and minimap independently; small Show buttons restore them.
-- Press **B** for map controls or **M** for the minimap when not typing.
-- Visibility is remembered when browser storage is available. Hunting filters and glow stay active when the controls are hidden.
+- Press **B** for controls or **M** for the minimap when not typing.
+- Visibility is remembered when browser storage is available. Hunting filters, glow, and live tracking continue while panels are hidden.
 
 ## Screenshots
 
