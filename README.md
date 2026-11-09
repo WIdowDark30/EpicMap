@@ -4,6 +4,16 @@ Interactive GemStone IV world map with connected areas, hunting level filters, l
 
 [Download the latest release](https://github.com/WIdowDark30/EpicMap/releases/latest)
 
+## Panel controls update (v1.2.2)
+
+[Download the v1.2.2 update ZIP](downloads/epicmap-v1.2.2-update.zip?raw=true) (requires an existing v1.2.1 installation).
+
+Extract the update and copy its `EpicMap` folder over your existing `EpicMap` folder, replacing the four files. Keep your existing maps and data. Reload with Ctrl+F5.
+
+- Hide the left controls and minimap independently; small Show buttons restore them.
+- Press **B** for map controls or **M** for the minimap when not typing.
+- Visibility is remembered when browser storage is available. Hunting filters and glow stay active when the controls are hidden.
+
 ## Screenshots
 
 ### World map
