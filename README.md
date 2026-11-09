@@ -4,9 +4,9 @@ Interactive GemStone IV world map with connected areas, hunting level filters, l
 
 [Download the latest release](https://github.com/WIdowDark30/EpicMap/releases/latest)
 
-## Download and install v1.2.2
+## Download and install v1.2.3
 
-[**Download EpicMap v1.2.2 — complete ZIP**](https://github.com/WIdowDark30/EpicMap/releases/download/v1.2.2/epicmap-v1.2.2.zip)
+[**Download EpicMap v1.2.3 — complete ZIP**](https://github.com/WIdowDark30/EpicMap/releases/download/v1.2.3/epicmap-v1.2.3.zip)
 
 Includes all maps, data, the Lich companion script, and the latest UI improvements. New users need only this download.
 
@@ -16,7 +16,11 @@ Includes all maps, data, the Lich companion script, and the latest UI improvemen
 
 Existing users can replace their `EpicMap` folder and reload with **Ctrl+F5**.
 
-### New panel controls
+### Saved preferences
+
+Open **Layers → Preferences** to enable or disable automatic saving, **Save now**, or **Reset preferences**. Remembering is enabled by default and saves hunting filters, map layers, view and tilt, tracking controls, selected character, trail duration, selected tab, and panel visibility. Turning it off clears saved settings. Preferences stay in the same browser and site address; they do not sync between computers.
+
+### Panel controls
 
 - Hide the left controls and minimap independently; small Show buttons restore them.
 - Press **B** for controls or **M** for the minimap when not typing.
