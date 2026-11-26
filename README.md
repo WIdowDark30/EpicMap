@@ -4,19 +4,48 @@ Interactive GemStone IV world map with connected areas, hunting level filters, l
 
 [Download the latest release](https://github.com/WIdowDark30/EpicMap/releases/latest)
 
-## Download and install v1.2.5
+## Windows quick start (1.2.6)
 
-[**Download EpicMap v1.2.5 — complete ZIP**](https://github.com/WIdowDark30/EpicMap/releases/download/v1.2.5/epicmap-v1.2.5.zip)
+1. Download **epicmap-v1.2.6-windows.zip** from [Releases](https://github.com/WIdowDark30/EpicMap/releases). Until 1.2.6 is published, the latest complete download is 1.2.5 and uses manual installation.
+2. Right-click the ZIP → **Extract All**. Open the extracted folder and double-click **Install-EpicMap.cmd**.
+3. The installer finds Lich on your Desktop, Documents, Downloads, and OneDrive, including nested folders. If you have several copies, choose the one you actually use. If none is found, paste your Lich folder path.
+4. In game run `;epicmap`. If it is already running, first run `;kill epicmap`. Other characters use `;epicmap noopen`. Reload an existing browser tab with **Ctrl+F5**.
 
-Includes all maps, data, the Lich companion script, and the latest UI improvements. New users need only this download.
+No administrator access is normally needed. The installer copies the complete map and launcher, preserves unrelated files, and makes an `epicmap-backup-*` folder in Lich before replacing existing files. Browser preferences and character tracking data are kept. A failed copy reports the backup location; restore that backup before retrying if needed.
 
-[**Existing users: download the smaller 1.2.5 update ZIP**](https://github.com/WIdowDark30/EpicMap/releases/download/v1.2.5/epicmap-v1.2.5-update.zip). Merge its `EpicMap` folder into your existing installation; keep your existing maps and room data.
+Only run the installer downloaded from this repository. Windows may show a warning for unsigned downloaded scripts; review the files before choosing to run them. The command wrapper permits this local PowerShell script for that process only.
 
-1. Extract the ZIP and place the `EpicMap` folder in your Lich folder.
-2. Copy `scripts/epicmap.lic` into your Lich scripts folder.
-3. Run `;epicmap` in game. Use `;epicmap noopen` for additional characters.
+### Custom folders and manual installation
 
-Existing users can replace their `EpicMap` folder and reload with **Ctrl+F5**.
+For a custom Lich location, run PowerShell from the extracted folder:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -LichPath "D:\Games\Lich5"
+```
+
+Or copy the included **EpicMap** folder into your Lich folder and copy **scripts/epicmap.lic** into **Lich5/scripts**. Keep all map images, data and credits. The GitHub **Source code** ZIP and the older **update** ZIPs are not complete installations.
+
+The launcher recognizes nested extracted map folders up to three levels deep. To keep maps elsewhere, run `;epicmap dir="D:\My Maps\EpicMap"`. A valid override is saved to **Lich5/data/epicmap/config.json** and used by subsequent launches and characters. Use `;epicmap resetdir` to return to automatic discovery. An invalid override is rejected without replacing the saved setting.
+
+### Troubleshooting
+
+- **Missing index.html / incomplete map:** extract the complete Windows ZIP and run its installer. A lone index.html or update ZIP is insufficient.
+- **Saved folder moved:** run `;epicmap dir="NEW PATH"` or `;epicmap resetdir`.
+- **Wrong Lich detected:** run the installer again with `-LichPath` for the Lich installation you use to log in.
+- **Access denied:** choose a writable Lich installation or close programs locking its files, then retry. Existing files are backed up before replacement.
+- **No live tracking:** restart the companion on each character. The first character hosts the local map; others use `;epicmap noopen`.
+- **Port conflict:** use `;epicmap port=7444` on all characters and open the address printed by the launcher.
+
+### Build and verification
+
+The map application remains byte-for-byte identical to the complete 1.2.5 release. This repository contains the maintained launcher, installer, and regression tests. Build the complete Windows package from the official full 1.2.5 ZIP; the builder verifies its published SHA-256 before including its map files and credits:
+
+```powershell
+.\build.ps1 -BaselineZip "C:\Downloads\epicmap-v1.2.5.zip"
+ruby tests/launcher_test.rb
+```
+
+Output: **dist/epicmap-v1.2.6-windows.zip** and **dist/SHA256SUMS.txt**. The build retains its staging folder for inspection. Browser tests from the baseline release can be run there with Node 20 or later.
 
 ## New in 1.2.5
 
