@@ -1,0 +1,97 @@
+name: Release
+
+# Publishes a GitHub release built from the repository.
+#
+# Bump package.json and add a CHANGELOG.md section, merge to main, then either
+#   - push a matching tag:  git tag v1.2.7 && git push origin v1.2.7
+#   - or run this workflow from the Actions tab, which tags the selected commit
+#     as v<package.json version>.
+# A tag with a suffix, such as v1.2.7-rc.1, makes a prerelease.
+# Do not create the release in the GitHub web UI; this workflow creates it.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Resolve release tag
+        id: tag
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            tag="v$version"
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+              echo "::error::Tag $tag already exists. Bump the version in package.json, or push the tag to release it."
+              exit 1
+            fi
+          fi
+          if ! [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag $tag is not vX.Y.Z or vX.Y.Z-suffix"
+            exit 1
+          fi
+          case "$tag" in
+            "v$version"|"v$version"-*) ;;
+            *) echo "::error::Tag $tag does not match package.json version $version"; exit 1 ;;
+          esac
+          if gh release view "$tag" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::A release for $tag already exists"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  package:
+    needs: resolve
+    uses: ./.github/workflows/package.yml
+    with:
+      tag: ${{ needs.resolve.outputs.tag }}
+
+  publish:
+    needs: [resolve, package]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.resolve.outputs.tag }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-package
+          path: dist
+
+      - name: Publish release
+        run: |
+          title=$(jq -r .title dist/release.json)
+          args=(--title "$title" --notes-file dist/release-notes.md)
+          if [ "$(jq -r .prerelease dist/release.json)" = true ]; then
+            args+=(--prerelease)
+          fi
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            args+=(--verify-tag)
+          else
+            args+=(--target "$GITHUB_SHA")
+          fi
+          mapfile -t assets < <(jq -r '.assets[] | "dist/" + .' dist/release.json)
+          gh release create "$TAG" -R "$GITHUB_REPOSITORY" "${args[@]}" "${assets[@]}"
+          echo "Published $(gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json url -q .url)" >> "$GITHUB_STEP_SUMMARY"
