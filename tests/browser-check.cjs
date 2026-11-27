@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const{pathToFileURL}=require('node:url');
 const{chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(__dirname,'..');
-const output=path.resolve(root,'../..','work/epicmap-1.2.5-check');
+const output=path.resolve(process.env.EPICMAP_CHECK_OUTPUT||path.join(root,'work/browser-check'));
 fs.mkdirSync(output,{recursive:true});
 (async()=>{
   const browser=await chromium.launch({headless:true,channel:process.env.EPICMAP_BROWSER_CHANNEL||undefined});

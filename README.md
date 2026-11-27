@@ -40,14 +40,17 @@ The launcher recognizes nested extracted map folders up to three levels deep. To
 
 ### Build and verification
 
-The map application remains byte-for-byte identical to the complete 1.2.5 release. This repository contains the maintained launcher, installer, and regression tests. Build the complete Windows package from the official full 1.2.5 ZIP; the builder verifies its published SHA-256 before including its map files and credits:
+This repository holds the complete package: the map application in **EpicMap**, the Lich launcher in **scripts**, the Windows installer and the regression tests. Run the checks with Node 20 or later and Ruby:
 
-```powershell
-.\build.ps1 -BaselineZip "C:\Downloads\epicmap-v1.2.5.zip"
+```bash
+npm ci
+npx playwright install chromium
+npm run check && npm test && npm run test:browser
 ruby tests/launcher_test.rb
+pwsh -File tests/installer_test.ps1
 ```
 
-Output: **dist/epicmap-v1.2.6-windows.zip** and **dist/SHA256SUMS.txt**. The build retains its staging folder for inspection. Browser tests from the baseline release can be run there with Node 20 or later.
+Releases are built by GitHub Actions from the repository. To publish one, bump `version` in **package.json**, add its section to **CHANGELOG.md** and update this README and **UPDATE.txt**. After merging to `main`, push a `vX.Y.Z` tag or run the **Release** workflow from the Actions tab. The workflow runs every test, including the installer checks on Windows. It then builds **epicmap-vX.Y.Z-windows.zip** and **SHA256SUMS.txt** and publishes the release with notes generated from the changelog. Every pull request builds the same package as a dry run. Files marked `export-ignore` in **.gitattributes** stay out of the ZIP.
 
 ## New in 1.2.5
 

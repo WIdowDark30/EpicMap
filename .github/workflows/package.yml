@@ -1,0 +1,106 @@
+name: Package
+
+# Runs every test and builds the release package. Called by CI (dry run) and
+# Release (publish). The package, notes and checksums are uploaded as the
+# "release-package" artifact.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to build, for example v1.2.7
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    name: Installer checks (Windows)
+    runs-on: windows-latest
+    outputs:
+      shells: ${{ steps.shells.outputs.shells }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Windows PowerShell
+        id: desktop
+        shell: powershell
+        run: |
+          ./tests/installer_test.ps1
+          "version=$($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)" >> $env:GITHUB_OUTPUT
+
+      - name: PowerShell 7
+        id: core
+        shell: pwsh
+        run: |
+          ./tests/installer_test.ps1
+          "version=$($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)" >> $env:GITHUB_OUTPUT
+
+      - name: Record shells
+        id: shells
+        shell: bash
+        run: echo "shells=Windows PowerShell ${{ steps.desktop.outputs.version }} and PowerShell ${{ steps.core.outputs.version }}" >> "$GITHUB_OUTPUT"
+
+  package:
+    name: Tests and package
+    needs: installer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # tags, to compare with the previous release
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '4.0'
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+
+      - name: Map regression tests
+        run: |
+          mkdir -p work
+          node --test --test-reporter=spec --test-reporter-destination=stdout \
+            --test-reporter=tap --test-reporter-destination=work/node-test.tap tests/*.test.cjs
+
+      - name: Headless browser checks
+        run: npm run test:browser
+
+      - name: Launcher tests
+        run: |
+          set -o pipefail
+          ruby -c scripts/epicmap.lic
+          ruby tests/launcher_test.rb | tee work/launcher-test.txt
+
+      - name: Build package and release notes
+        env:
+          TAG: ${{ inputs.tag }}
+          INSTALLER_CHECKS: ${{ needs.installer.outputs.shells }}
+        run: |
+          node tools/release.cjs --tag "$TAG" --out dist --installer-checks "$INSTALLER_CHECKS"
+          cat dist/release-notes.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-package
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: browser-check
+          path: work/browser-check/
+          if-no-files-found: ignore

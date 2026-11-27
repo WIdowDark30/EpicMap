@@ -1,0 +1,1 @@
+Extract the entire Windows ZIP, then double-click Install-EpicMap.cmd. See README.md for manual installation and troubleshooting. Map and artwork credits are in MAP-CREDITS-AND-README.txt.
